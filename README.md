@@ -20,6 +20,6 @@ npm start
 ```
 The React App will run on http://localhost:3000.
 
-### Access the App:
+### 3. Access the App:
 Open  web browser and navigate to http://localhost:3000 to interact with the React app.
 
