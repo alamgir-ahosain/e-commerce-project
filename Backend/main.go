@@ -24,75 +24,76 @@ type Product struct {
 
 var productList []Product //list of prduct
 
-//GET->only header
+// GET->only header
 func getProducts(w http.ResponseWriter, r *http.Request) {
-	
-	w.Header().Set("Access-Control-Allow-Origin","*") //set header: (*) anyone can access the responce
-	w.Header().Set("Content-Type","application/json") //body :resource media type
 
+	handleCORS(w)
+	handlePreflightRequest(w,r)
 	if r.Method != http.MethodGet { // if r.Method=post,put,patch,delete
 		http.Error(w, "only GET request allowed!", 400)
 		return
 	}
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(productList) //encoded json format
+	sendData(w,productList,200) //make json format
 
 }
 
-//POST->header and body
+// POST->header and body
 func createProduct(w http.ResponseWriter, r *http.Request) {
+
+	handleCORS(w)
+	handlePreflightRequest(w,r)
 	
-	w.Header().Set("Access-Control-Allow-Origin","*") //set header: (*) anyone can access the responce
-	w.Header().Set("Access-Control-Allow-Headers","Content-Type") //allow content type
-	w.Header().Set("Access-Control-Allow-Methods","POST") //allow content type
-	w.Header().Set("Content-Type","application/json") //body :resource media type
-
-
-	//for options methos:just relief
-	if r.Method=="OPTIONS"{
-		w.WriteHeader(200)
-		return
-	}
 	if r.Method != "POST" { // if r.Method=get,put,patch,delete
 		http.Error(w, "only POST request allowed!", 400)
 		return
 	}
-
 	/*
-	1. take body information (description,price,title,imageUrl) from r.Body()
-	2.create an instance using Product struct with the body information
-	3.append the instance into productList
+		1. take body information (description,price,title,imageUrl) from r.Body()
+		2.create an instance using Product struct with the body information
+		3.append the instance into productList
 	*/
 
-	var newProduct  Product
-	decoder:=json.NewDecoder(r.Body)
-	err:=decoder.Decode(&newProduct) //if any error in decoder
-	if err!=nil{
-		fmt.Println("Decoder Error:",err)
-		http.Error(w,"Give the valid json!",400)
+	var newProduct Product
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newProduct) //if any error in decoder
+	if err != nil {
+		fmt.Println("Decoder Error:", err)
+		http.Error(w, "Give the valid json!", 400)
 		return
 	}
-	newProduct.ID=len(productList)+1
-	productList=append(productList, newProduct)
-
-	w.WriteHeader(201) //for create product
-	encoder:=json.NewEncoder(w)
-	encoder.Encode(newProduct)
+	newProduct.ID = len(productList) + 1
+	productList = append(productList, newProduct)
+	sendData(w,productList,201) //make json format
 
 
 }
 
+func handleCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")                                  //set header: (*) anyone can access the responce
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Alamgir-CustomHeader") //allow content type
+	w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS") //allow content type
+	w.Header().Set("Content-Type", "application/json")                                  //body :resource media type
+}
 
+func handlePreflightRequest(w http.ResponseWriter,r *http.Request){
+//for options methos:just relief
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+}
 
+func sendData(w http.ResponseWriter,data interface{},statusCode int){
+	w.WriteHeader(statusCode) //status code for create product
+	encoder := json.NewEncoder(w)
+	encoder.Encode(data)
+}
 func main() {
 
 	mux := http.NewServeMux() //router
 
-	
-	mux.HandleFunc("/products", getProducts) //route
+	mux.HandleFunc("/products", getProducts)          //route
 	mux.HandleFunc("/create-products", createProduct) //route
-
 
 	fmt.Println("Server running on port :8080")
 	err := http.ListenAndServe(":8080", mux)
@@ -123,7 +124,7 @@ func init() {
 		Price:       150,
 		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
 	}
-		pd4 := Product{
+	pd4 := Product{
 		ID:          4,
 		Title:       "Jack Fruit",
 		Description: "National Fruit.",
@@ -137,4 +138,3 @@ func init() {
 	productList = append(productList, pd4)
 
 }
-
