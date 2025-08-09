@@ -8,6 +8,6 @@ import (
 func RegisterRoutes(r *http.ServeMux) {
 	//mux.HandleFunc("/products", getProducts)  
 	r.Handle("GET /products", http.HandlerFunc(handlers.GetProducts))
-	r.Handle("POST /create-products", http.HandlerFunc(handlers.CreateProduct))
+	r.Handle("POST /products", http.HandlerFunc(handlers.CreateProduct))
 
 }
