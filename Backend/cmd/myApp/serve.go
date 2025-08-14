@@ -6,12 +6,18 @@ import (
 
 	"github.com/alamgir-ahosain/e-commerce-project/internal/api/handlers"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/api/routes"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/middleware"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/middleware/global"
 )
 
 func Serve() {
 	mux := http.NewServeMux() //router
-	routes.RegisterRoutes(mux)
 
+	// Middlewaere
+	manager := middleware.NewManager()
+	global.GlobalMiddleware(manager)
+
+	routes.RegisterRoutes(mux, manager)
 	globalRouter := handlers.GlobalRouter(mux) //handle CORS and OPTIONS method
 	fmt.Println("Server running on port :8080")
 	err := http.ListenAndServe(":8080", globalRouter)
