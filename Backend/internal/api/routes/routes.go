@@ -7,13 +7,30 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/middleware"
 )
 
-func RegisterRoutes(r *http.ServeMux) {
-	
-	
-	r.Handle("GET /alamgir", middleware.Logger( http.HandlerFunc(handlers.Test)))
+func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
+
+	r.Handle("GET /alamgir",
+		manager.With(
+			http.HandlerFunc(handlers.Test),
+		),
+	)
 
 	//mux.HandleFunc("/products", getProducts)
-	r.Handle("GET /products", http.HandlerFunc(handlers.GetProducts))
-	r.Handle("POST /products", http.HandlerFunc(handlers.CreateProduct))
+	//r.Handle("GET /products", http.HandlerFunc(handlers.GetProducts))
+	r.Handle("GET /products",
+		manager.With(
+			http.HandlerFunc(handlers.GetProducts),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+
+	r.Handle("POST /products",
+		manager.With(
+			http.HandlerFunc(handlers.CreateProduct),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
 
 }
