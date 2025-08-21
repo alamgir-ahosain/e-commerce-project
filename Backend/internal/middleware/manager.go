@@ -15,23 +15,22 @@ func (mn *Manager) Use(middleware ...Middleware) {
 
 }
 
-// Receiver function
+// Receiver function,wrapper local middleware(First,second)
 func (mn *Manager) With(next http.Handler, middlewares ...Middleware) http.Handler {
 	n := next
-
-	//call middleware
 	for _, middleware := range middlewares {
 		n = middleware(n)
-
-		//n =FirstMiddleware(GetProducts)
-		//n = SecondMiddleware(FirstMiddleware(GetProducts))
+		//n =FirstMiddleware(GetProducts)  -> n= SecondMiddleware(FirstMiddleware(GetProducts))
 	}
+	return n
+}
 
-	//call globalMiddleware
-	for _, globalMiddleware := range mn.globalMiddlewares {
-		n = globalMiddleware((n))  //n = Logger(SecondMiddleware(FirstMiddleware(GetProducts)))
+// wrapper Global Middleware with Mux
+func (mn *Manager) WrapMux(next http.Handler) http.Handler {
+	n := next // [preflight,cors,logger]   n=logger(cors(preflight(mux)))
+	for _, middleware := range mn.globalMiddlewares {
+		n = middleware(n)
 	}
-
 	return n
 }
 
