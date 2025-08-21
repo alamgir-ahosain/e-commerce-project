@@ -22,11 +22,14 @@ func (mn *Manager) With(next http.Handler, middlewares ...Middleware) http.Handl
 	//call middleware
 	for _, middleware := range middlewares {
 		n = middleware(n)
+
+		//n =FirstMiddleware(GetProducts)
+		//n = SecondMiddleware(FirstMiddleware(GetProducts))
 	}
 
 	//call globalMiddleware
 	for _, globalMiddleware := range mn.globalMiddlewares {
-		n = globalMiddleware((n))
+		n = globalMiddleware((n))  //n = Logger(SecondMiddleware(FirstMiddleware(GetProducts)))
 	}
 
 	return n
