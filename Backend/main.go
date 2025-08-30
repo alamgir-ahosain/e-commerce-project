@@ -1,11 +1,7 @@
 package main
 
 import (
-	"fmt"
-
-	//	"github.com/alamgir-ahosain/e-commerce-project/cmd/myApp"
 	"github.com/alamgir-ahosain/e-commerce-project/cmd/myApp"
-	"github.com/alamgir-ahosain/e-commerce-project/config"
 )
 
 /* ___status code
@@ -17,11 +13,6 @@ import (
 */
 
 func main() {
-
-	cnf := config.GetConfig()
-	fmt.Println(cnf.Version)
-	fmt.Println(cnf.ServiceName)
-	fmt.Println(cnf.HttpPort)
 
 	myApp.Serve()
 
