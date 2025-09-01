@@ -41,10 +41,20 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 			middleware.SecondMiddleware,
 		),
 	)
+
 	//Delete product by id
 	r.Handle("DELETE /products/{id}",
 		manager.With(
 			http.HandlerFunc(handlers.DeleteProductById),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+
+	//Update product by id
+	r.Handle("PUT /products/{id}",
+		manager.With(
+			http.HandlerFunc(handlers.UpdateProductById),
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),

@@ -57,12 +57,11 @@ func MakeJSONFormatFunc(w http.ResponseWriter, statusCode int) {
 }
 
 // make JSON format
-func MakeJSONFormatThreeFunc(w http.ResponseWriter, statusCode int,data interface{}) {
+func MakeJSONFormatThreeFunc(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.WriteHeader(statusCode)
 	encoder := json.NewEncoder(w)
 	encoder.Encode(data)
 }
-
 
 // create product function:post request
 func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
@@ -80,18 +79,18 @@ func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
 
 // GET id
 func GetID(w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	idStr:=r.PathValue("id")
+
+	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		util.SendError(w, r, http.StatusBadRequest, "Invalid ID Type")
-		return 0,err
+		return 0, err
 	}
 
 	return id, nil
 }
 
-//Get prdduct by id 
+// Get prdduct by id
 func GetProductByIdFunc(id int) (models.Product, error) {
 	for i, val := range productList {
 		if val.ID == id {
@@ -102,13 +101,35 @@ func GetProductByIdFunc(id int) (models.Product, error) {
 	return models.Product{}, fmt.Errorf("produnct with id=%d not found", id)
 
 }
+
 // delete  product by ID
-func DeleteProductByIdFunc(id int)(models.Product,error){
-	for i,val:=range productList{
-		if val.ID==id{
-			productList = append(productList[:i],productList[i+1:]...)
-			return productList[i],nil
+func DeleteProductByIdFunc(id int) (models.Product, error) {
+	for i, val := range productList {
+		if val.ID == id {
+			productList = append(productList[:i], productList[i+1:]...)
+			return productList[i], nil
 		}
 	}
-	return models.Product{},fmt.Errorf("error delete product ")
+	return models.Product{}, fmt.Errorf("error delete product ")
+}
+
+//update product by Id
+func UpdateProductByIdFunc(w http.ResponseWriter, r *http.Request, id int) {
+
+	var newProduct models.Product
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newProduct)
+	if err != nil {
+		http.Error(w, "Give  the valid json format", 400)
+		return
+	}
+	for i, val := range productList {
+		if val.ID == id {
+			newProduct.ID=id
+			productList[i] = newProduct
+			MakeJSONFormatThreeFunc(w, 201, newProduct)
+			return
+		}
+	}
+
 }
