@@ -2,8 +2,13 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
+
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
+	
 )
 
 var productList = []models.Product{
@@ -52,6 +57,14 @@ func MakeJSONFormatFunc(w http.ResponseWriter, statusCode int) {
 	encoder.Encode(productList)
 }
 
+// make JSON format
+func MakeJSONFormatThreeFunc(w http.ResponseWriter, statusCode int,data interface{}) {
+	w.WriteHeader(statusCode)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(data)
+}
+
+
 // create product function:post request
 func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
 	var newProduct models.Product
@@ -64,4 +77,29 @@ func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
 
 	productList = append(productList, newProduct)
 	MakeJSONFormatFunc(w, 201)
+}
+
+// GET id
+func GetID(w http.ResponseWriter, r *http.Request) (int, error) {
+	
+	idStr:=r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		util.SendError(w, r, http.StatusBadRequest, "Invalid ID Type")
+		return 0,err
+	}
+
+	return id, nil
+}
+
+//Get prdduct by id 
+func GetProductByIdFunc(id int) (models.Product, error) {
+	for i, val := range productList {
+		if val.ID == id {
+			return productList[i], nil
+		}
+
+	}
+	return models.Product{}, fmt.Errorf("produnct with id=%d not found", id)
+
 }

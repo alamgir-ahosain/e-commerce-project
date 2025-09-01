@@ -7,7 +7,7 @@ import (
 )
 
 // POST->header and body
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+func CreateProducts(w http.ResponseWriter, r *http.Request) {
 
 	services.HandleCORSFunc(w)
 	if r.Method == "OPTIONS" {
