@@ -113,7 +113,7 @@ func DeleteProductByIdFunc(id int) (models.Product, error) {
 	return models.Product{}, fmt.Errorf("error delete product ")
 }
 
-//update product by Id
+// update product by Id
 func UpdateProductByIdFunc(w http.ResponseWriter, r *http.Request, id int) {
 
 	var newProduct models.Product
@@ -125,11 +125,48 @@ func UpdateProductByIdFunc(w http.ResponseWriter, r *http.Request, id int) {
 	}
 	for i, val := range productList {
 		if val.ID == id {
-			newProduct.ID=id
+			newProduct.ID = id
 			productList[i] = newProduct
 			MakeJSONFormatThreeFunc(w, 201, newProduct)
 			return
 		}
 	}
 
+}
+
+// PATCH request to update product by ID (partial update)
+func UpdateProductByIdPutFunc(w http.ResponseWriter, r *http.Request, id int) {
+	var patchData map[string]interface{}
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&patchData)
+	if err != nil {
+		http.Error(w, "Give the valid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	for i, val := range productList {
+		if val.ID == id {
+			// Update fields if present
+			if title, ok := patchData["title"].(string); ok {
+				productList[i].Title = title
+			}
+			if description, ok := patchData["description"].(string); ok {
+				productList[i].Description = description
+			}
+			if price, ok := patchData["price"].(float64); ok {
+				productList[i].Price = price
+			}
+			if imageUrl, ok := patchData["imageUrl"].(string); ok {
+				productList[i].ImgUrl = imageUrl
+			}
+
+			// Send updated product as JSON response
+			MakeJSONFormatThreeFunc(w, 200, patchData)
+			return
+		}
+	}
+
+	// If product with given ID is not found
+	http.Error(w, "Product not found", http.StatusNotFound)
 }
