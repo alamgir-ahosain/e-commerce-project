@@ -27,7 +27,7 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 
 	r.Handle("POST /products",
 		manager.With(
-			http.HandlerFunc(handlers.CreateProduct),
+			http.HandlerFunc(handlers.CreateProducts),
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -37,6 +37,14 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	r.Handle("GET /products/{id}",
 		manager.With(
 			http.HandlerFunc(handlers.GetProductById),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+	//Delete product by id
+	r.Handle("DELETE /products/{id}",
+		manager.With(
+			http.HandlerFunc(handlers.DeleteProductById),
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),

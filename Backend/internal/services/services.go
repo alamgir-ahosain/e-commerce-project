@@ -8,7 +8,6 @@ import (
 
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
-	
 )
 
 var productList = []models.Product{
@@ -102,4 +101,14 @@ func GetProductByIdFunc(id int) (models.Product, error) {
 	}
 	return models.Product{}, fmt.Errorf("produnct with id=%d not found", id)
 
+}
+// delete  product by ID
+func DeleteProductByIdFunc(id int)(models.Product,error){
+	for i,val:=range productList{
+		if val.ID==id{
+			productList = append(productList[:i],productList[i+1:]...)
+			return productList[i],nil
+		}
+	}
+	return models.Product{},fmt.Errorf("error delete product ")
 }
