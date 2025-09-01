@@ -33,4 +33,13 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 		),
 	)
 
+	//Get product by id
+	r.Handle("GET /products/{id}",
+		manager.With(
+			http.HandlerFunc(handlers.GetProductById),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+
 }
