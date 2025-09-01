@@ -59,5 +59,14 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 			middleware.SecondMiddleware,
 		),
 	)
+	//Update product by id
+	r.Handle("PATCH /products/{id}",
+		manager.With(
+			http.HandlerFunc(handlers.UpdateProductByIdPUT),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+
 
 }
