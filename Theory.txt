@@ -1,0 +1,40 @@
+
+                      ________  JSON Web Token _______
+
+Structure of a JWT
+  A JWT has three parts, separated by dots (.):  <Header>.<Payload>.<Signature>
+    1. Header
+        1. alg: the signing algorithm 
+        2. typ: type of token 
+        {
+        "alg": "HS256",
+        "typ": "JWT"
+        }  
+    2. Payload
+        1. Contains claims (information about the user or token).   
+        {
+        "email": "a1@gmail.com",
+        "password":""123"
+        }
+    3.Signature    
+        1. Ensures the token is not tampered with.
+        2. Created by encoding the header and payload, then signing with a secret key:
+
+        HMACSHA256(
+            base64UrlEncode(header) + "." + base64UrlEncode(payload),
+            secret
+    )
+
+How it Works
+    1. User logs in → server verifies credentials.
+    2. Server creates JWT → signs with secret key.
+    3. Client stores token → sends it in Authorization: Bearer <token> header.
+    4. Server verifies token → grants access if valid.
+Advantages
+    1. Stateless (no server session storage).
+    Compact and portable.
+    2. Secure (signature prevents tampering).
+
+Limitations
+    1. Cannot revoke easily.
+    2.Don’t store sensitive info in payload.    

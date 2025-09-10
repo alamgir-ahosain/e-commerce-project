@@ -68,5 +68,22 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 		),
 	)
 
+	// Create User
+	r.Handle("POST /users",
+		manager.With(
+			http.HandlerFunc(handlers.CreateUser),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
+
+	//Login User
+	r.Handle("POST /users/login",
+		manager.With(
+			http.HandlerFunc(handlers.LoginUser),
+			middleware.FirstMiddleware,
+			middleware.SecondMiddleware,
+		),
+	)
 
 }

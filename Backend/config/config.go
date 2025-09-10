@@ -11,9 +11,10 @@ import (
 
 var configuration Config //store env though process ended
 type Config struct {
-	Version     string //application version
-	ServiceName string //service name
-	HttpPort    int    //port
+	Version      string //application version
+	ServiceName  string //service name
+	HttpPort     int    //port
+	JwtSecretKey string //jwt token
 }
 
 func loadConfig() {
@@ -48,10 +49,17 @@ func loadConfig() {
 
 	}
 
+	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
+	if jwtSecretKey == "" {
+		log.Fatal("JwtSecretKey is required")
+		os.Exit(1)
+	}
+
 	configuration = Config{
-		Version:     version,
-		ServiceName: serviceName,
-		HttpPort:    port,
+		Version:      version,
+		ServiceName:  serviceName,
+		HttpPort:     port,
+		JwtSecretKey: jwtSecretKey,
 	}
 
 }
