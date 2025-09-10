@@ -1,11 +1,16 @@
 package services
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/alamgir-ahosain/e-commerce-project/config"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
@@ -65,6 +70,54 @@ func MakeJSONFormatThreeFunc(w http.ResponseWriter, statusCode int, data interfa
 
 // create product function:post request
 func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
+
+	//JWT
+	header := r.Header.Get("Authorization")
+	if header == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+
+	//spilt into Bearer and secret
+	headerArr := strings.Split(header, " ")
+	accessToken := headerArr[1]
+	if len(headerArr) != 2 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	tokenParts := strings.Split(accessToken, ".")
+	if len(tokenParts) != 3 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	jwtHeader := tokenParts[0]
+	playload := tokenParts[1]
+	signature := tokenParts[2]
+	
+
+
+	// Singnature: Create HMAC-SHA256 signature
+	message := jwtHeader + "." + playload
+
+	byteArrSecret := []byte(config.GetConfig().JwtSecretKey)
+	byteArrMsg := []byte(message)
+
+	h := hmac.New(sha256.New, []byte(byteArrSecret))
+	h.Write([]byte(byteArrMsg))
+	hash := h.Sum(nil)
+
+	// Encode signature to base64
+	newSignature := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(hash)
+	if signature != newSignature {
+		http.Error(w, "Unauthorized,hacker found", http.StatusUnauthorized)
+		return
+	}
+
+
+
+	
 	var newProduct models.Product
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newProduct)

@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/alamgir-ahosain/e-commerce-project/config"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/services"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
@@ -21,11 +22,25 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		3.append the instance into productList
 	*/
 
-	pr, err := services.LoginUserFunc(w, r)
+	user, err := services.LoginUserFunc(w, r)
 	if err != nil {
 		util.SendError(w, r, http.StatusNotFound, err)
 		return
 	}
-	services.MakeJSONFormatThreeFunc(w, http.StatusOK, pr)
+
+	cnf := config.GetConfig()
+	accessToken, err := util.CreateJWT(cnf.JwtSecretKey, util.Payload{
+		ID:          user.ID,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		IsShopOwner: user.IsShopOwner,
+	})
+	if err != nil {
+		util.SendError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+	// services.MakeJSONFormatThreeFunc(w, http.StatusOK, pr)
+	services.MakeJSONFormatThreeFunc(w, http.StatusOK, accessToken)
 
 }
