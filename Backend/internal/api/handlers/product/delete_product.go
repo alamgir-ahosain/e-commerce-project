@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
 
-func DeleteProductById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
 	id, err := services.GetID(w, r)
 	if err != nil {
 		util.SendError(w, r, http.StatusNotFound, err)

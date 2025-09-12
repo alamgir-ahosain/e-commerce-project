@@ -1,4 +1,4 @@
-package routes
+package product
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/middleware"
 )
 
-func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
+func (h *Handler) RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 
 	r.Handle("GET /alamgir",
 		manager.With(
@@ -19,7 +19,7 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	//r.Handle("GET /products", http.HandlerFunc(handlers.GetProducts))
 	r.Handle("GET /products",
 		manager.With(
-			http.HandlerFunc(handlers.GetProducts),
+			http.HandlerFunc(h.GetProducts),
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -27,8 +27,8 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 
 	r.Handle("POST /products",
 		manager.With(
-			http.HandlerFunc(handlers.CreateProducts),
-			middleware.AuthenticateJwt,
+			http.HandlerFunc(h.CreateProducts),
+			h.middlewares.AuthenticateJwt,
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -37,7 +37,7 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	//Get product by id
 	r.Handle("GET /products/{id}",
 		manager.With(
-			http.HandlerFunc(handlers.GetProductById),
+			http.HandlerFunc(h.GetProductById),
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -46,8 +46,8 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	//Delete product by id
 	r.Handle("DELETE /products/{id}",
 		manager.With(
-			http.HandlerFunc(handlers.DeleteProductById),
-			middleware.AuthenticateJwt,
+			http.HandlerFunc(h.DeleteProductById),
+			h.middlewares.AuthenticateJwt,
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -56,8 +56,8 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	//Update product by id
 	r.Handle("PUT /products/{id}",
 		manager.With(
-			http.HandlerFunc(handlers.UpdateProductById),
-			middleware.AuthenticateJwt,
+			http.HandlerFunc(h.UpdateProductById),
+			h.middlewares.AuthenticateJwt,
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),
@@ -65,26 +65,8 @@ func RegisterRoutes(r *http.ServeMux, manager *middleware.Manager) {
 	//Update product by id
 	r.Handle("PATCH /products/{id}",
 		manager.With(
-			http.HandlerFunc(handlers.UpdateProductByIdPUT),
-			middleware.AuthenticateJwt,
-			middleware.FirstMiddleware,
-			middleware.SecondMiddleware,
-		),
-	)
-
-	// Create User
-	r.Handle("POST /users",
-		manager.With(
-			http.HandlerFunc(handlers.CreateUser),
-			middleware.FirstMiddleware,
-			middleware.SecondMiddleware,
-		),
-	)
-
-	//Login User
-	r.Handle("POST /users/login",
-		manager.With(
-			http.HandlerFunc(handlers.LoginUser),
+			http.HandlerFunc(h.UpdateProductByIdPUT),
+			h.middlewares.AuthenticateJwt,
 			middleware.FirstMiddleware,
 			middleware.SecondMiddleware,
 		),

@@ -1,4 +1,4 @@
-package handlers
+package review
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // POST->header and body
-func CreateProducts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {
 
 	services.HandleCORSFunc(w)
 	if r.Method == "OPTIONS" {
@@ -20,6 +20,7 @@ func CreateProducts(w http.ResponseWriter, r *http.Request) {
 		3.append the instance into productList
 	*/
 
-	services.CreateProductFunc(w, r)
+	// services.CreateProductFunc(w, r)
+	services.CreateUserFunc(w, r)
 
 }
