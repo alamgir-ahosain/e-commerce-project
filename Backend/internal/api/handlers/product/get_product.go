@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"net/http"
@@ -7,8 +7,8 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
 
-func GetProductById(w http.ResponseWriter, r *http.Request) {
-	id, err := services.GetID(w,r)
+func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
+	id, err := services.GetID(w, r)
 	if err != nil {
 		return
 	}

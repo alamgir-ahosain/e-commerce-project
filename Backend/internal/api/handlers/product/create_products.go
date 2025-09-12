@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // POST->header and body
-func CreateProducts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateProducts(w http.ResponseWriter, r *http.Request) {
 
 	services.HandleCORSFunc(w)
 	if r.Method == "OPTIONS" {

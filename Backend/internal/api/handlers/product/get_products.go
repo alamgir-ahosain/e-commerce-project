@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // GET->only header
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	services.HandleCORSFunc(w)
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(200)
