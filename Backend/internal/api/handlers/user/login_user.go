@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ import (
 )
 
 // POST->header and body
-func LoginUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	services.HandleCORSFunc(w)
 	if r.Method == "OPTIONS" {

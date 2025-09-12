@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // POST->header and body
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	services.HandleCORSFunc(w)
 	if r.Method == "OPTIONS" {
@@ -21,7 +21,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	// services.CreateProductFunc(w, r)
-	services.CreateUserFunc(w,r)
-
+	services.CreateUserFunc(w, r)
 
 }
