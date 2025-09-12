@@ -6,11 +6,9 @@ import (
 	"encoding/base64"
 	"net/http"
 	"strings"
-
-	"github.com/alamgir-ahosain/e-commerce-project/config"
 )
 
-func AuthenticateJwt(next http.Handler) http.Handler {
+func (m *Middlewares) AuthenticateJwt(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("Authintication Middleware ")
 		//JWT
@@ -40,7 +38,7 @@ func AuthenticateJwt(next http.Handler) http.Handler {
 		// Singnature: Create HMAC-SHA256 signature
 		message := jwtHeader + "." + playload
 
-		byteArrSecret := []byte(config.GetConfig().JwtSecretKey)
+		byteArrSecret := []byte(m.cnf.JwtSecretKey)
 		byteArrMsg := []byte(message)
 
 		h := hmac.New(sha256.New, []byte(byteArrSecret))
