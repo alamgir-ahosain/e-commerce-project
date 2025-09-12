@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var configuration Config //store env though process ended
+var configuration *Config //store env though process ended
 type Config struct {
 	Version      string //application version
 	ServiceName  string //service name
@@ -55,7 +55,7 @@ func loadConfig() {
 		os.Exit(1)
 	}
 
-	configuration = Config{
+	configuration = &Config{
 		Version:      version,
 		ServiceName:  serviceName,
 		HttpPort:     port,
@@ -64,7 +64,11 @@ func loadConfig() {
 
 }
 
-func GetConfig() Config {
-	loadConfig()
+func GetConfig() *Config {
+	if configuration == nil {
+		//Load Config File if it's load First time
+		loadConfig()
+
+	}
 	return configuration
 }
