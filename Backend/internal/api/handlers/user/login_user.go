@@ -1,9 +1,10 @@
 package user
 
 import (
+	"encoding/json"
 	"net/http"
 
-	"github.com/alamgir-ahosain/e-commerce-project/config"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/services"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
@@ -22,14 +23,22 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		3.append the instance into productList
 	*/
 
-	user, err := services.LoginUserFunc(w, r)
+	var reqLogin models.RequestLogin
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&reqLogin)
 	if err != nil {
-		util.SendError(w, r, http.StatusNotFound, err)
+		http.Error(w, "Give  the valid json format", http.StatusBadRequest)
+		return
+
+	}
+
+	user, err := h.userRepo.LoginUserFunc(reqLogin)
+	if err != nil {
+		util.SendError(w, http.StatusNotFound, err)
 		return
 	}
 
-	cnf := config.GetConfig()
-	accessToken, err := util.CreateJWT(cnf.JwtSecretKey, util.Payload{
+	accessToken, err := util.CreateJWT(h.config.JwtSecretKey, util.Payload{
 		ID:          user.ID,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
@@ -37,7 +46,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		IsShopOwner: user.IsShopOwner,
 	})
 	if err != nil {
-		util.SendError(w, r, http.StatusInternalServerError, err)
+		util.SendError(w, http.StatusInternalServerError, err)
 		return
 	}
 	// services.MakeJSONFormatThreeFunc(w, http.StatusOK, pr)

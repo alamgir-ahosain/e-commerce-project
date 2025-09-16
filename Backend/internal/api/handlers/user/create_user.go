@@ -1,9 +1,12 @@
 package user
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/services"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
 
 // POST->header and body
@@ -20,7 +23,19 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		3.append the instance into productList
 	*/
 
-	// services.CreateProductFunc(w, r)
-	services.CreateUserFunc(w, r)
+	var newUser models.User
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newUser)
+	if err != nil {
+		util.SendError(w, http.StatusBadRequest, "Give the valid json format")
+		return
+	}
+
+	user, err := h.userRepo.CreateUserFunc(newUser)
+	if err != nil {
+		util.SendError(w, http.StatusBadRequest, "Error Creating User")
+		return
+	}
+	services.MakeJSONFormatThreeFunc(w, http.StatusCreated, user)
 
 }
