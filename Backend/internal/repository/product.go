@@ -6,13 +6,38 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 )
 
-// type Product struct {
-// 	ID          int     `json:"id"` //change ID to id in json format
-// 	Title       string  `json:"title"`
-// 	Description string  `json:"description"`
-// 	Price       float64 `json:"price"`
-// 	ImgUrl      string  `json:"imageUrl"`
-// }
+func initialProduct(r *productRepo) {
+	r.productList = []models.Product{
+		{
+			ID:          1,
+			Title:       "Orange",
+			Description: "orange is a fruit.",
+			Price:       100,
+			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEZeYvkPorIuW7yfCQQ-cM_I0L0UbP0gOMyA&s",
+		},
+		{
+			ID:          2,
+			Title:       "Mango",
+			Description: "Mangifera indica, commonly known as Mango.",
+			Price:       200,
+			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFT-bteAg0wbO0yBMfyM8fLq0vG5At3wwLtQ&s",
+		},
+		{
+			ID:          3,
+			Title:       "Apple",
+			Description: "Apple is a green.",
+			Price:       150,
+			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
+		},
+		{
+			ID:          4,
+			Title:       "Jack Fruit",
+			Description: "National Fruit.",
+			Price:       250,
+			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQe3E9guFDcTsvr64CfPpM6pYbssqXWmbiZ6w&s",
+		},
+	}
+}
 
 type ProductRepo interface {
 	CreateProductFunc(product models.Product) (*models.Product, error)
@@ -71,6 +96,8 @@ func (pr *productRepo) UpdateProductByIdFunc(p models.Product, id int) (*models.
 	}
 	return &models.Product{}, fmt.Errorf("product with id=%d not found", id)
 }
+
+// UpdateProductByIdPatchFunc implements ProductRepo.
 func (pr *productRepo) UpdateProductByIdPatchFunc(patchData map[string]interface{}, id int) (*models.Product, error) {
 	for i, val := range pr.productList {
 		if val.ID == id {
@@ -105,37 +132,4 @@ func (pr *productRepo) DeleteProductByIdFunc(id int) (*models.Product, error) {
 		}
 	}
 	return &models.Product{}, fmt.Errorf("error deleting product with id=%d", id)
-}
-
-func initialProduct(r *productRepo) {
-	r.productList = []models.Product{
-		{
-			ID:          1,
-			Title:       "Orange",
-			Description: "orange is a fruit.",
-			Price:       100,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEZeYvkPorIuW7yfCQQ-cM_I0L0UbP0gOMyA&s",
-		},
-		{
-			ID:          2,
-			Title:       "Mango",
-			Description: "Mangifera indica, commonly known as Mango.",
-			Price:       200,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFT-bteAg0wbO0yBMfyM8fLq0vG5At3wwLtQ&s",
-		},
-		{
-			ID:          3,
-			Title:       "Apple",
-			Description: "Apple is a green.",
-			Price:       150,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
-		},
-		{
-			ID:          4,
-			Title:       "Jack Fruit",
-			Description: "National Fruit.",
-			Price:       250,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQe3E9guFDcTsvr64CfPpM6pYbssqXWmbiZ6w&s",
-		},
-	}
 }
