@@ -21,6 +21,6 @@ func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	// services.CreateProductFunc(w, r)
-	services.CreateUserFunc(w, r)
+	//services.CreateUserFunc(w, r)
 
 }
