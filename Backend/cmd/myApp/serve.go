@@ -9,6 +9,7 @@ import (
 	"github.com/alamgir-ahosain/e-commerce-project/internal/api/handlers/review"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/api/handlers/user"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/middleware"
+	"github.com/alamgir-ahosain/e-commerce-project/internal/repository"
 )
 
 func Serve() {
@@ -19,9 +20,16 @@ func Serve() {
 	fmt.Println(cnf.ServiceName)
 	fmt.Println(cnf.HttpPort)
 
-	mid := middleware.NewMiddlewares(cnf)
-	productHandler := product.NewHandler(mid)
-	userHandler := user.NewHandler()
+	// product
+	middlewares := middleware.NewMiddlewares(cnf)
+	productRepo := repository.NewProductRepo()
+	productHandler := product.NewHandler(middlewares, productRepo)
+
+	//user
+	userRepo := repository.NewUserRepo()
+	userHandler := user.NewHandler(cnf, userRepo)
+
+	//Review Section
 	reviewHandler := review.NewHandler()
 
 	server := internal.NewServer(cnf, productHandler, userHandler, reviewHandler)
