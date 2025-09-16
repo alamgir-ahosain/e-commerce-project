@@ -12,9 +12,10 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	pr, err := services.GetProductByIdFunc(id)
+	// pr, err := services.GetProductByIdFunc(id)
+	pr, err := h.productRepo.GetByIdFunc(id)
 	if err != nil {
-		util.SendError(w, r, http.StatusNotFound, err)
+		util.SendError(w, http.StatusNotFound, err)
 		return
 	}
 	services.MakeJSONFormatThreeFunc(w, http.StatusOK, pr)

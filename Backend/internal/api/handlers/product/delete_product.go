@@ -10,12 +10,12 @@ import (
 func (h *Handler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
 	id, err := services.GetID(w, r)
 	if err != nil {
-		util.SendError(w, r, http.StatusNotFound, err)
+		util.SendError(w, http.StatusNotFound, err)
 		return
 	}
-	_, err = services.DeleteProductByIdFunc(id)
+	_, err = h.productRepo.DeleteProductByIdFunc(id)
 	if err != nil {
-		util.SendError(w, r, http.StatusBadRequest, err)
+		util.SendError(w, http.StatusBadRequest, err)
 		return
 	}
 }

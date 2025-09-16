@@ -2,44 +2,11 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 	"github.com/alamgir-ahosain/e-commerce-project/internal/util"
 )
-
-var productList = []models.Product{
-	{
-		ID:          1,
-		Title:       "Orange",
-		Description: "orange is a fruit.",
-		Price:       100,
-		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEZeYvkPorIuW7yfCQQ-cM_I0L0UbP0gOMyA&s",
-	},
-	{
-		ID:          2,
-		Title:       "Mango",
-		Description: "Mangifera indica, commonly known as Mango.",
-		Price:       200,
-		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFT-bteAg0wbO0yBMfyM8fLq0vG5At3wwLtQ&s",
-	},
-	{
-		ID:          3,
-		Title:       "Apple",
-		Description: "Apple is a green.",
-		Price:       150,
-		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
-	},
-	{
-		ID:          4,
-		Title:       "Jack Fruit",
-		Description: "National Fruit.",
-		Price:       250,
-		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQe3E9guFDcTsvr64CfPpM6pYbssqXWmbiZ6w&s",
-	},
-}
 
 // Handle CORS error
 func HandleCORSFunc(w http.ResponseWriter) {
@@ -49,11 +16,17 @@ func HandleCORSFunc(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-// make JSON format
-func MakeJSONFormatFunc(w http.ResponseWriter, statusCode int) {
-	w.WriteHeader(statusCode)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(productList)
+// GET id
+func GetID(w http.ResponseWriter, r *http.Request) (int, error) {
+
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		util.SendError(w, http.StatusBadRequest, "Invalid ID Type")
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // make JSON format
@@ -63,7 +36,24 @@ func MakeJSONFormatThreeFunc(w http.ResponseWriter, statusCode int, data interfa
 	encoder.Encode(data)
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 // create product function:post request
+
 func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
 
 	var newProduct models.Product
@@ -77,20 +67,9 @@ func CreateProductFunc(w http.ResponseWriter, r *http.Request) {
 	productList = append(productList, newProduct)
 	MakeJSONFormatFunc(w, 201)
 }
+*/
 
-// GET id
-func GetID(w http.ResponseWriter, r *http.Request) (int, error) {
-
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		util.SendError(w, r, http.StatusBadRequest, "Invalid ID Type")
-		return 0, err
-	}
-
-	return id, nil
-}
-
+/*
 // Get prdduct by id
 func GetProductByIdFunc(id int) (models.Product, error) {
 	for i, val := range productList {
@@ -102,7 +81,8 @@ func GetProductByIdFunc(id int) (models.Product, error) {
 	return models.Product{}, fmt.Errorf("produnct with id=%d not found", id)
 
 }
-
+*/
+/*
 // delete  product by ID
 func DeleteProductByIdFunc(id int) (models.Product, error) {
 	for i, val := range productList {
@@ -113,7 +93,8 @@ func DeleteProductByIdFunc(id int) (models.Product, error) {
 	}
 	return models.Product{}, fmt.Errorf("error delete product ")
 }
-
+*/
+/*
 // update product by Id
 func UpdateProductByIdFunc(w http.ResponseWriter, r *http.Request, id int) {
 
@@ -134,7 +115,9 @@ func UpdateProductByIdFunc(w http.ResponseWriter, r *http.Request, id int) {
 	}
 
 }
+*/
 
+/*
 // PATCH request to update product by ID (partial update)
 func UpdateProductByIdPutFunc(w http.ResponseWriter, r *http.Request, id int) {
 	var patchData map[string]interface{}
@@ -171,3 +154,37 @@ func UpdateProductByIdPutFunc(w http.ResponseWriter, r *http.Request, id int) {
 	// If product with given ID is not found
 	http.Error(w, "Product not found", http.StatusNotFound)
 }
+*/
+
+/*
+var productList = []models.Product{
+	{
+		ID:          1,
+		Title:       "Orange",
+		Description: "orange is a fruit.",
+		Price:       100,
+		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEZeYvkPorIuW7yfCQQ-cM_I0L0UbP0gOMyA&s",
+	},
+	{
+		ID:          2,
+		Title:       "Mango",
+		Description: "Mangifera indica, commonly known as Mango.",
+		Price:       200,
+		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFT-bteAg0wbO0yBMfyM8fLq0vG5At3wwLtQ&s",
+	},
+	{
+		ID:          3,
+		Title:       "Apple",
+		Description: "Apple is a green.",
+		Price:       150,
+		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
+	},
+	{
+		ID:          4,
+		Title:       "Jack Fruit",
+		Description: "National Fruit.",
+		Price:       250,
+		ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQe3E9guFDcTsvr64CfPpM6pYbssqXWmbiZ6w&s",
+	},
+}
+*/
