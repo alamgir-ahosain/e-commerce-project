@@ -4,49 +4,74 @@ import (
 	"fmt"
 
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
+	"github.com/jmoiron/sqlx"
 )
 
-func initialUser(r *userRepo) {
-	r.userList = []models.User{}
-}
-
-//Repository Design Pattern
+// Repository Design Pattern
 type UserRepo interface {
 	CreateUserFunc(u models.User) (*models.User, error)
 	LoginUserFunc(login models.RequestLogin) (*models.User, error)
 }
 
 type userRepo struct {
-	userList []models.User
+	//userList []models.User
+	db *sqlx.DB
 }
 
 // Public constructor
-func NewUserRepo() UserRepo {
-	repo := &userRepo{}
-	initialUser(repo)
+func NewUserRepo(db *sqlx.DB) UserRepo {
+	repo := &userRepo{
+		db: db,
+	}
+	//initialUser(repo)
 	return repo
 }
 
 // CreateUserFunc implements UserRepo.
 func (ur *userRepo) CreateUserFunc(u models.User) (*models.User, error) {
-	if u.ID != 0 {
-		return &models.User{}, fmt.Errorf("duplicate user")
+
+	query := `INSERT INTO users (first_name, last_name, email, password, is_shop_owner)
+	          values(:first_name,:last_name,:email,:password,:is_shop_owner) RETURNING id`
+
+	//Executed Query
+	var userId int
+	rows, err := ur.db.NamedQuery(query, u)
+	if err != nil {
+		fmt.Println("executed query error: ", err)
+		return nil, err
 	}
-	u.ID = len(ur.userList) + 1
-	ur.userList = append(ur.userList, u)
+	defer rows.Close()
+
+	//Read the returned ID
+	if rows.Next() {
+		if err := rows.Scan(&userId); err != nil { //If no rows are returned, userId remains 0
+			fmt.Println("rows error:", err)
+			return nil, err
+		}
+	}
+	//Assign the ID and return
+	u.ID = userId
 	return &u, nil
 }
 
-// LoginUserFunc implements UserRepo.
+// LoginUserFunc implements UserRepo: using the database.
 func (ur *userRepo) LoginUserFunc(login models.RequestLogin) (*models.User, error) {
-	for i, val := range ur.userList {
-		if login.Email == "" || login.Password == "" {
-			return &models.User{}, fmt.Errorf("email and password required")
-		}
-
-		if val.Email == login.Email && val.Password == login.Password {
-			return &ur.userList[i], nil
-		}
+	if login.Email == "" || login.Password == "" {
+		return nil, fmt.Errorf("email and password required")
 	}
-	return &models.User{}, fmt.Errorf("user not found")
+
+	var user models.User
+	query := `SELECT * FROM users WHERE email = $1 and password=$2`
+	err := ur.db.Get(&user, query, login.Email,login.Password)
+	if err != nil {
+		fmt.Println(err)
+		return nil, fmt.Errorf("user not found")
+	}
+
+	// Compare password
+	if user.Password != login.Password {
+		return nil, fmt.Errorf("invalid password")
+	}
+
+	return &user, nil
 }

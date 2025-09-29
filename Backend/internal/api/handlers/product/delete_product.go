@@ -13,7 +13,7 @@ func (h *Handler) DeleteProductById(w http.ResponseWriter, r *http.Request) {
 		util.SendError(w, http.StatusNotFound, err)
 		return
 	}
-	_, err = h.productRepo.DeleteProductByIdFunc(id)
+	 err = h.productRepo.DeleteProductByIdFunc(id)
 	if err != nil {
 		util.SendError(w, http.StatusBadRequest, err)
 		return

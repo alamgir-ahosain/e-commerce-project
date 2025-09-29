@@ -1,135 +1,133 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/alamgir-ahosain/e-commerce-project/internal/models"
 )
 
-func initialProduct(r *productRepo) {
-	r.productList = []models.Product{
-		{
-			ID:          1,
-			Title:       "Orange",
-			Description: "orange is a fruit.",
-			Price:       100,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEZeYvkPorIuW7yfCQQ-cM_I0L0UbP0gOMyA&s",
-		},
-		{
-			ID:          2,
-			Title:       "Mango",
-			Description: "Mangifera indica, commonly known as Mango.",
-			Price:       200,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFT-bteAg0wbO0yBMfyM8fLq0vG5At3wwLtQ&s",
-		},
-		{
-			ID:          3,
-			Title:       "Apple",
-			Description: "Apple is a green.",
-			Price:       150,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJJfODaTyBw4581VyPy5wQHvq4yfAIzGRHVA&s",
-		},
-		{
-			ID:          4,
-			Title:       "Jack Fruit",
-			Description: "National Fruit.",
-			Price:       250,
-			ImgUrl:      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQe3E9guFDcTsvr64CfPpM6pYbssqXWmbiZ6w&s",
-		},
-	}
-}
-
 type ProductRepo interface {
 	CreateProductFunc(product models.Product) (*models.Product, error)
-	GetProductByIdFunc() (*[]models.Product, error)
+	GetAllProduct() (*[]models.Product, error)
 	GetByIdFunc(id int) (*models.Product, error)
 	UpdateProductByIdFunc(product models.Product, id int) (*models.Product, error)
-	UpdateProductByIdPatchFunc(patchData map[string]interface{}, id int) (*models.Product, error)
-	DeleteProductByIdFunc(id int) (*models.Product, error)
+	//UpdateProductByIdPatchFunc(patchData map[string]interface{}, id int) (*models.Product, error)
+	DeleteProductByIdFunc(id int) error
 }
 
 type productRepo struct {
-	productList []models.Product
+	db *sqlx.DB
 }
 
 // Public constructor
-func NewProductRepo() ProductRepo {
-	repo := &productRepo{}
-	initialProduct(repo)
+func NewProductRepo(db *sqlx.DB) ProductRepo {
+	repo := &productRepo{db: db}
 	return repo
 }
 
 // CreateProductFunc implements ProductRepo.
 func (pr *productRepo) CreateProductFunc(p models.Product) (*models.Product, error) {
+	query := `INSERT INTO products (title, description, price, image_url)
+	          values($1,$2,$3,$4) RETURNING id`
+	//Executed Query
+	row := pr.db.QueryRow(query, p.Title, p.Description, p.Price, p.ImgUrl)
+	// Scan the returned id into p.ID
+	err := row.Scan(&p.ID)
+	if err != nil {
 
-	p.ID = len(pr.productList) + 1
-	pr.productList = append(pr.productList, p)
+		fmt.Println("rows error:", err)
+		return nil, err
+	}
 	return &p, nil
 
 }
 
 // GetFunc implements ProductRepo.
-func (pr *productRepo) GetProductByIdFunc() (*[]models.Product, error) {
-	return &pr.productList, nil
+func (pr *productRepo) GetAllProduct() (*[]models.Product, error) {
+	var productList []models.Product
+
+	query := `SELECT id,title,description,price,image_url FROM products`
+	err := pr.db.Select(&productList, query)
+	if err != nil {
+		//fmt.Println("rows error:", err)
+		return nil, err
+	}
+
+	//fmt.Println(productList)
+	return &productList, nil
 }
 
 // GetByIdFunc implements ProductRepo.
 func (pr *productRepo) GetByIdFunc(id int) (*models.Product, error) {
-	for i, val := range pr.productList {
-		if val.ID == id {
-			return &pr.productList[i], nil
-		}
 
+	var prd models.Product
+	query := `SELECT id, title,description,price,image_url FROM products where id=$1`
+	err := pr.db.Get(&prd, query, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("No rows Found:", err)
+			return nil, nil
+
+		}
 	}
-	return &models.Product{}, fmt.Errorf("produnct with id=%d not found", id)
+	return &prd, err
 
 }
 
 // UpdateProductByIdPutFunc implements ProductRepo.
 func (pr *productRepo) UpdateProductByIdFunc(p models.Product, id int) (*models.Product, error) {
-	for i, val := range pr.productList {
-		if val.ID == id {
-			p.ID = id
-			pr.productList[i] = p
-			return &pr.productList[i], nil
+
+	query := `UPDATE products SET title=$1, description=$2, price=$3, image_url=$4 WHERE id=$5 RETURNING id`
+	row := pr.db.QueryRow(query, p.Title, p.Description, p.Price, p.ImgUrl, id)
+	err := row.Scan(&p.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("product with id=%d not found", id)
 		}
+		return nil, err
 	}
-	return &models.Product{}, fmt.Errorf("product with id=%d not found", id)
+	return &p, nil
+
 }
 
 // UpdateProductByIdPatchFunc implements ProductRepo.
-func (pr *productRepo) UpdateProductByIdPatchFunc(patchData map[string]interface{}, id int) (*models.Product, error) {
-	for i, val := range pr.productList {
-		if val.ID == id {
-			// Update fields if present
-			if title, ok := patchData["title"].(string); ok {
-				pr.productList[i].Title = title
-			}
-			if description, ok := patchData["description"].(string); ok {
-				pr.productList[i].Description = description
-			}
-			if price, ok := patchData["price"].(float64); ok {
-				pr.productList[i].Price = price
-			}
-			if imageUrl, ok := patchData["imageUrl"].(string); ok {
-				pr.productList[i].ImgUrl = imageUrl
-			}
+// func (pr *productRepo) UpdateProductByIdPatchFunc(patchData map[string]interface{}, id int) (*models.Product, error) {
+// 	for i, val := range pr.productList {
+// 		if val.ID == id {
+// 			// Update fields if present
+// 			if title, ok := patchData["title"].(string); ok {
+// 				pr.productList[i].Title = title
+// 			}
+// 			if description, ok := patchData["description"].(string); ok {
+// 				pr.productList[i].Description = description
+// 			}
+// 			if price, ok := patchData["price"].(float64); ok {
+// 				pr.productList[i].Price = price
+// 			}
+// 			if imageUrl, ok := patchData["imageUrl"].(string); ok {
+// 				pr.productList[i].ImgUrl = imageUrl
+// 			}
 
-			return &pr.productList[i], nil
-		}
-	}
-	return &models.Product{}, fmt.Errorf("product with id=%d not found", id)
+// 			return &pr.productList[i], nil
+// 		}
+// 	}
+// 	return &models.Product{}, fmt.Errorf("product with id=%d not found", id)
 
-}
+// }
 
 // DeleteProductByIdFunc implements ProductRepo.
-func (pr *productRepo) DeleteProductByIdFunc(id int) (*models.Product, error) {
-	for i, val := range pr.productList {
-		if val.ID == id {
-			deletedProduct := pr.productList[i]
-			pr.productList = append(pr.productList[:i], pr.productList[i+1:]...)
-			return &deletedProduct, nil
-		}
-	}
-	return &models.Product{}, fmt.Errorf("error deleting product with id=%d", id)
+func (pr *productRepo) DeleteProductByIdFunc(id int) error {
+
+	q := `DELETE FROM products where id=$1`
+	result, err := pr.db.Exec(q, id)
+	
+	if err != nil {return err}
+	cnt, err := result.RowsAffected()
+	if err != nil {return err}
+	if cnt == 0 {	return fmt.Errorf("product with id=%d not found", id)}
+	return nil
+
 }
