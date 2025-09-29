@@ -15,7 +15,7 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productList, err := h.productRepo.GetProductByIdFunc()
+	productList, err := h.productRepo.GetAllProduct()
 	if err != nil {
 		// http.Error(w, "Error showed Product", 400)
 		util.SendError(w, http.StatusBadRequest, "Error Product")
